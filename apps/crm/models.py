@@ -31,6 +31,9 @@ class Project(AbstractBaseModel):
         related_name="joined_projects"
     )
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class UserProject(AbstractBaseModel):
     """Relationship table between CustomUser and Project tables under a specified role."""
@@ -67,12 +70,16 @@ class Role(AbstractBaseModel):
 
     name = CharField(
         max_length=NAME_MAX_LEN,
+        verbose_name="Role's name"
     )
     readonly_permission = BooleanField(
-        default=False
+        default=False,
+        verbose_name="Is able to read data",
+        help_text="Your expanded description"
     )
     create_permission = BooleanField(
-        default=False
+        default=False,
+        verbose_name="Is able to create data"
     )
     update_permission = BooleanField(
         default=False
@@ -105,6 +112,9 @@ class Status(AbstractBaseModel):
 
     class Meta:
         """Meta data of the table."""
+
+        verbose_name = "Status"
+        verbose_name_plural = "Statuses"
 
         constraints = [
             UniqueConstraint(
