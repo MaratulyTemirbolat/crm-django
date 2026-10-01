@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.contrib.auth.models import User
 from django.db.models import (
     CharField,
     BooleanField,
@@ -13,6 +12,7 @@ from django.db.models import (
 )
 
 from apps.abstracts.models import AbstractBaseModel
+from apps.auths.models import CustomUser
 
 
 class Project(AbstractBaseModel):
@@ -24,7 +24,7 @@ class Project(AbstractBaseModel):
         max_length=NAME_MAX_LEN,
     )
     members = ManyToManyField(
-        to=User,
+        to=CustomUser,
         blank=True,
         through="UserProject",
         through_fields=("project", "user"),
@@ -33,10 +33,10 @@ class Project(AbstractBaseModel):
 
 
 class UserProject(AbstractBaseModel):
-    """Relationship table between User and Project tables under a specified role."""
+    """Relationship table between CustomUser and Project tables under a specified role."""
 
     user = ForeignKey(
-        to=User,
+        to=CustomUser,
         on_delete=PROTECT,
     )
     project = ForeignKey(
@@ -131,12 +131,12 @@ class Task(AbstractBaseModel):
         default="",
     )
     author = ForeignKey(
-        to=User,
+        to=CustomUser,
         on_delete=PROTECT,
         related_name="created_tasks"
     )
     assignees = ManyToManyField(
-        to=User,
+        to=CustomUser,
         blank=True,
         related_name="assigned_tasks"
     )
