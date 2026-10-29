@@ -67,7 +67,7 @@ class Command(BaseCommand):
             # created_users_cnt = created_users_cnt + 1 if created else created_users_cnt
             # print("Created user with email: {} and full name: {}".format(email, full_name))
 
-        CustomUser.objects.bulk_create(users_to_create)
+        CustomUser.objects.bulk_create(users_to_create, ignore_conflicts=True)
         print(f"Created {len(users_to_create)} users out of {number_of_users} requested.")
         # print(f"Created {created_users_cnt} users out of {number_of_users} requested.")
 
