@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.db.models import QuerySet
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db.models import (
@@ -110,4 +111,3 @@ class CustomUser(AbstractBaseUser, PermissionsMixin, AbstractBaseModel):
     REQUIRED_FIELDS = ["full_name"]
     USERNAME_FIELD = "email"
     objects = CustomUserManager()
-
