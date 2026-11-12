@@ -17,8 +17,9 @@ Including another URLconf
 from decouple import config
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path(config("CRM_ADMIN_URL", cast=str), admin.site.urls),
+    path("api/auths/", include("apps.auths.urls")),
 ]
