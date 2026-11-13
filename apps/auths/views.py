@@ -1,16 +1,17 @@
 from typing import Any
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.db.models import QuerySet
-
 from rest_framework.viewsets import ViewSet
 from rest_framework.request import Request as DRFRequest
 from rest_framework.response import Response as DRFResponse
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.status import (
     HTTP_200_OK,
-    HTTP_204_NO_CONTENT,
     HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_403_FORBIDDEN,
 )
 
 from apps.auths.models import CustomUser
@@ -25,6 +26,7 @@ from apps.auths.serializers import (
     UserLoginSerializer,
 )
 from apps.crm.serializers.tasks import TaskListSerializer
+from apps.auths.permissions import IsUserOwner
 
 
 class CustomUserViewSet(DRFResponseMixin, ViewSet):
@@ -34,12 +36,14 @@ class CustomUserViewSet(DRFResponseMixin, ViewSet):
 
     queryset = CustomUser.objects
     serializer_class = CustomUserBaseSerializer
+    # permission_classes = (IsAuthenticated,)
 
     @action(
         methods=("POST",),
         detail=False,
         url_path="login",
         url_name="login",
+        permission_classes=(AllowAny,)
     )
     @validate_serializer_data(serializer_class=UserLoginSerializer)
     def login(
@@ -95,8 +99,15 @@ class CustomUserViewSet(DRFResponseMixin, ViewSet):
             many=True,
         )
 
+    @action(
+        methods=("POST",),
+        detail=False,
+        url_path="register",
+        url_name="register",
+        permission_classes=(AllowAny,)
+    )
     @validate_serializer_data(serializer_class=CustomUserCreateSerializer)
-    def create(self, request: DRFRequest, *args: Any, **kwargs: Any) -> DRFResponse:
+    def register(self, request: DRFRequest, *args: Any, **kwargs: Any) -> DRFResponse:
         """
         Creates a new User instance endpoint.
         """
@@ -121,9 +132,8 @@ class CustomUserViewSet(DRFResponseMixin, ViewSet):
             serializer_class=CustomUserDetailSerializer,
         )
 
-    # TODO: It is not called
     @find_queryset_object_by_query_pk(queryset=queryset, entity_name="User")
-    def delete(self, request: DRFRequest, *args: Any, **kwargs: Any) -> DRFResponse:
+    def destroy(self, request: DRFRequest, *args: Any, **kwargs: Any) -> DRFResponse:
         """
         Deletes a specific User instance by ID.
         """
@@ -137,6 +147,8 @@ class CustomUserViewSet(DRFResponseMixin, ViewSet):
         """
         Updates a specific User instance by ID.
         """
+        found_user: CustomUser = kwargs["object"]
+        self.check_object_permissions(request, found_user)
         serializer: CustomUserUpdateSerializer = kwargs["serializer"]
         updated_user: CustomUser = serializer.save()
         return self.get_drf_response(
@@ -151,7 +163,8 @@ class CustomUserViewSet(DRFResponseMixin, ViewSet):
         """
         Partially updates a specific User instance by ID.
         """
-
+        found_user: CustomUser = kwargs["object"]
+        self.check_object_permissions(request, obj=found_user)
         serializer: CustomUserUpdateSerializer = kwargs["serializer"]
         serializer.save()
         return DRFResponse(

@@ -24,6 +24,7 @@ DJANGO_AND_THIRD_PARTY_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'debug_toolbar',
 ]
 PROJECT_APPS = [
     "apps.crm.apps.CrmConfig",
@@ -43,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 TEMPLATES = [
     {
@@ -85,7 +87,8 @@ USE_TZ = True
 # ----------------------------------------------
 # Static | Media
 #
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
