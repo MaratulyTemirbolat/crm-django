@@ -54,7 +54,7 @@ def validate_serializer_data(
                 local_context["object"] = kwargs["object"]
 
             serializer: Serializer = serializer_class(
-                instance=getattr(local_context, "object", None),
+                instance=local_context.get("object"),
                 data=data,
                 context=local_context,
                 many=many,
